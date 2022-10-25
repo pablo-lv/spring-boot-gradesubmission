@@ -3,8 +3,10 @@ package com.plucas.gradesubmission.controller;
 import com.plucas.gradesubmission.model.Grade;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,8 +34,11 @@ public class GradeController {
 
 
     @PostMapping("/handleSubmit")
-    public String submitGrade(Grade grade) {
+    public String submitGrade(@Valid Grade grade, BindingResult result) {
         System.out.println(grade);
+        if (result.hasErrors()) {
+            return "form";
+        }
         Integer index = getGradeIndex(grade.getId());
         if (index > -1000) {
             studentGrades.set(index, grade);
