@@ -1,23 +1,22 @@
 package com.plucas.gradesubmission.controller;
 
 import com.plucas.gradesubmission.model.Grade;
+import com.plucas.gradesubmission.repository.GradeRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 public class GradeController {
 
-    List<Grade> studentGrades = new ArrayList<>();
+    GradeRepository gradeRepository = new GradeRepository();
 
     @RequestMapping("/grades")
     public String getGrades(Model model) {
-        model.addAttribute("grades", studentGrades);
+        model.addAttribute("grades", gradeRepository.getStudentGrades());
         return "grades";
     }
 
@@ -25,8 +24,9 @@ public class GradeController {
     @GetMapping("/")
     public String getForm(Model model, @RequestParam(required = false) String id) {
         Grade grade = new Grade();
-        if (getGradeIndex(id) > -1000) {
-            grade = studentGrades.get(getGradeIndex(id));
+        int index = getGradeIndex(id);
+        if (index > -1000) {
+            grade = gradeRepository.getGrade(index);
         }
         model.addAttribute("grade", grade);
         return "form";
@@ -41,16 +41,16 @@ public class GradeController {
         }
         Integer index = getGradeIndex(grade.getId());
         if (index > -1000) {
-            studentGrades.set(index, grade);
+            gradeRepository.updateGrade(index, grade);
         } else {
-            studentGrades.add(grade);
+            gradeRepository.addGrade(grade);
         }
         return "redirect:/grades";
     }
 
     public Integer getGradeIndex(String id) {
-        for (int i = 0; i < studentGrades.size(); i++) {
-            if(studentGrades.get(i).getId().equals(id)) return i;
+        for (int i = 0; i < gradeRepository.getStudentGrades().size(); i++) {
+            if(gradeRepository.getStudentGrades().get(i).getId().equals(id)) return i;
         }
         return -1000;
     }
